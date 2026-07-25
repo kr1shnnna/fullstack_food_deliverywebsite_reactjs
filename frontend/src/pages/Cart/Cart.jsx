@@ -6,6 +6,7 @@ const Cart = () => {
   const {cartItems,food_list,removeFromCart,getTotalCartAmount} = useContext(StoreContext);
 
   const navigate=useNavigate();
+  const deliveryFee = getTotalCartAmount() === 0 ? 0 : 40;
    
   return (
     <div className='cart'>
@@ -51,12 +52,12 @@ if(cartItems[item._id]>0){
       <hr/>
       <div className="cart-total-details">
         <p>Delivery Fee</p>
-        <p>₹{2}</p>
+        <p>₹{deliveryFee}</p>
       </div>
       <hr/>
       <div className="cart-total-details">
         <b>Total</b>
-        <b>₹{getTotalCartAmount()+2}</b>
+        <b>₹{getTotalCartAmount()+deliveryFee}</b>
       </div>
     </div>
      <button onClick={()=>navigate('/order')}>Proceed to Checkout</button>

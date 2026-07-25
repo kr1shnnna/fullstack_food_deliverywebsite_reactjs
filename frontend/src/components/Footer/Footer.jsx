@@ -33,7 +33,7 @@ const Footer = () => {
       </div>
       <hr />
       <p className="footer-copyright">
-        Copyright © 2024 Zaykawala. All Rights Reserved. Designed by Krishna
+        Copyright © 2026 Zaykawala. All Rights Reserved. Designed by Krishna
       </p>
     </div>
   )
