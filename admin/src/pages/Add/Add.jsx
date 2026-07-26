@@ -1,9 +1,26 @@
 import './Add.css'
 import { assets } from '../../assets/assets'
 import { useState } from 'react'
+
 const Add = () => {
 
     const [image, setImage]=useState(false)
+    const [data, setData]=useState({
+        name:'',
+        description:'',
+        price:'',
+        category:'Salad'
+    })
+
+    const onChangeHandler=(event)=>{
+        const name=event.target.name;
+        const value=event.target.value;
+        setData(data=>({
+            ...data,[name]:value
+        }))
+    }
+
+  
 
   return (
     <div className='add'>
@@ -25,7 +42,7 @@ const Add = () => {
                     Product Name
                 </p>
 
-                <input type="text"  namme='name'placeholder='Product Name' required />
+                <input onChange={onChangeHandler} value={data.name}  type="text"  name='name' placeholder='Product Name' required />
             </div>
 
             <div className="add-product-description flex-col">
@@ -33,7 +50,7 @@ const Add = () => {
                     Product Description
                 </p>
 
-                <textarea name="description" rows='6' placeholder='Product Description' required>
+                <textarea  onChange={onChangeHandler} value={data.description} name="description" rows='6' placeholder='Product Description' required>
 
                     </textarea> 
 
@@ -44,12 +61,12 @@ const Add = () => {
                     <p>
                         Product Category
                     </p>
-                    <select name='category'>
+                    <select  onChange={onChangeHandler} name='category'>
                         <option value="Salad">Salad</option>
                         <option value="Rolls">Rolls</option>
                         <option value="Deserts">Deserts</option>
                         <option value="Sandwich">Sandwich</option>
-                        <option value="Cake">Cake</option>
+                        <option value="Non-Veg">Non-Veg</option>
                         <option value="Pure Veg">Pure Veg</option>
                         <option value="Pasta">Pasta</option>
                         <option value="Noodles">Noodles</option>
@@ -59,7 +76,7 @@ const Add = () => {
                     <p>
                         Product Price
                     </p>
-                    <input  type='number' name='price' placeholder='₹100'/>
+                    <input onChange={onChangeHandler} value={data.price} type='number' name='price' placeholder='₹100'/>
                     </div> 
             </div>
             <button type='submit' className='add-btn'>ADD</button>
