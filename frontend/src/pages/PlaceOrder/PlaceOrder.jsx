@@ -3,6 +3,8 @@ import { useContext } from "react";
 import { StoreContext } from "../../Context/StoreContext";
 import { useState } from "react";
 import axios from "axios";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 const PlaceOrder = () => {
@@ -56,6 +58,17 @@ else{
 }
   }
 
+  const navigate=useNavigate();
+
+  useEffect(()=>{
+if(!token){
+  navigate('/cart')
+}
+else if(getTotalCartAmount()===0){
+  navigate('/cart')
+}
+  },[token])
+
  
 
 
@@ -72,8 +85,8 @@ else{
         <input required name='street' onChange={onChangeHandler} value={data.street} type="text" placeholder="Street" />
 
         <div className="multi-fields">
-          <input requiredname='city' onChange={onChangeHandler} value={data.city} type="text" placeholder="City" />
-          <input requiredname='state'onChange={onChangeHandler} value={data.state}type="text" placeholder="State" />
+          <input required name='city' onChange={onChangeHandler} value={data.city} type="text" placeholder="City" />
+          <input required name='state'onChange={onChangeHandler} value={data.state}type="text" placeholder="State" />
         </div>
 
         <div className="multi-fields">

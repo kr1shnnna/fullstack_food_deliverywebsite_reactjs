@@ -13,12 +13,15 @@ const MyOrders = () => {
         const response= await axios.post(url+'/api/placeorder/userorders',{},{headers:{token}})
         setData(response.data.data);
        
+
+       
     } 
 
 
     useEffect(()=>{
     if(token){
     fetchOrders();
+
     }
     },[token])
 
@@ -46,7 +49,7 @@ const MyOrders = () => {
                         <p>₹{order.amount}</p>
                         <p>Items:{order.items.length}</p>
                         <p><span>&#x25cf;</span><b>{order.status}</b></p>
-                        <button>Track Order</button>
+                        <button onClick={fetchOrders}>Track Order</button>
 
                     </div>
                 )
