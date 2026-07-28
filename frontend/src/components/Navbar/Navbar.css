@@ -6,7 +6,9 @@
 }
 
 .navbar .logo{
-    width:150px;
+    width:180px;
+    height:auto;
+    display:block;
 }
 
 .navbar-menu{
