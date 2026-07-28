@@ -1,4 +1,4 @@
-````markdown
+
 # 🍽️ Zaykawala - Food Delivery Website
 
 A modern and responsive full-stack food delivery web application where users can browse delicious meals, add items to their cart, place orders securely, and manage their orders with an intuitive user interface.
@@ -148,5 +148,5 @@ Third-Year Computer Science Engineering Student
 Passionate about building full-stack web applications using the MERN Stack.
 
 ⭐ If you found this project helpful, consider giving it a **Star** on GitHub!
-````
+
 
