@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext ,useEffect } from "react";
 
 import "./Navbar.css";
 
@@ -14,6 +14,28 @@ const Navbar = ({ setShowLogin }) => {
   const [showSearch, setShowSearch] = useState(false);
 
   const [hasSearched, setHasSearched] = useState(false);
+
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+
+  const handleScroll = () => {
+
+    if (window.scrollY > 20) {
+      setScrolled(true);
+    } else {
+      setScrolled(false);
+    }
+
+  };
+
+  window.addEventListener("scroll", handleScroll);
+
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+
+}, []);
 
   const {
     getTotalCartAmount,
@@ -39,7 +61,7 @@ const Navbar = ({ setShowLogin }) => {
   };
 
   return (
-    <div className="navbar">
+   <div className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
 
       {/* Logo */}
       <Link to="/">
@@ -49,13 +71,14 @@ const Navbar = ({ setShowLogin }) => {
       {/* Navigation Menu */}
       <ul className="navbar-menu">
 
-        <Link
-          to="/"
+        <a
+            href="#home"
           onClick={() => setMenu("home")}
           className={menu === "home" ? "active" : ""}
-        >
+          >
+        
           Home
-        </Link>
+        </a>
 
         <a
           href="#explore-menu"

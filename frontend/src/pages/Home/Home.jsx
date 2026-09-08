@@ -14,7 +14,7 @@ const Home = () => {
   const { searchTerm } = useContext(StoreContext)
 
   return (
-    <div>
+    <div id="home">
 
       <Header />
 
