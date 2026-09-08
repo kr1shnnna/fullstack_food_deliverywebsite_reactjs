@@ -1,5 +1,5 @@
 .navbar {
-    padding: 20px 0;
+    padding: 20px 1%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -194,6 +194,20 @@
 
     font-size: 16px;
     color: #333;
+}
+
+
+.search-close {
+    font-size: 26px;
+    color: #777;
+    cursor: pointer;
+    line-height: 1;
+    transition: 0.2s;
+}
+
+.search-close:hover {
+    color: tomato;
+    transform: scale(1.1);
 }
 
 
