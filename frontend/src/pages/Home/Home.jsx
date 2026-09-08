@@ -3,17 +3,30 @@ import ExploreMenu from '../../components/ExploreMenu/ExploreMenu'
 import FoodDisplay from '../../components/FoodDisplay/FoodDisplay'
 import Header from '../../components/Header/Header'
 import './Home.css'
-import { useState } from 'react'
+
+import { useState, useContext } from 'react'
+import { StoreContext } from '../../Context/StoreContext'
+
 const Home = () => {
 
-  const [category,setCategory] = useState('All')
+  const [category, setCategory] = useState('All')
+
+  const { searchTerm } = useContext(StoreContext)
+
   return (
     <div>
-     <Header />
-     <ExploreMenu category={category} setCategory={setCategory} />
-     <FoodDisplay category={category} />
-     <AppDownload />
-     
+
+      <Header />
+
+      <ExploreMenu
+        category={category}
+        setCategory={setCategory}
+      />
+
+      <FoodDisplay category={category} />
+
+      {!searchTerm && <AppDownload />}
+
     </div>
   )
 }

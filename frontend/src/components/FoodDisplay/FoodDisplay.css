@@ -16,3 +16,20 @@
     row-gap:50px;
     
 }
+
+.no-results{
+    text-align: center;
+    padding: 60px 20px;
+    color: #49557e;
+}
+
+.no-results h3{
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.no-results p{
+    font-size: 16px;
+    margin: 5px 0;
+    color: #747474;
+}

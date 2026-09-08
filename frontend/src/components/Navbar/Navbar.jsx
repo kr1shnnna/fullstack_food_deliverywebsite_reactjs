@@ -133,14 +133,25 @@ const Navbar = ({ setShowLogin }) => {
               if (e.target.value && !hasSearched) {
                 setHasSearched(true);
 
+               
                 setTimeout(() => {
-                  document
-                    .getElementById("food-display")
-                    ?.scrollIntoView({
-                      behavior: "smooth",
-                      block: "start",
-                    });
-                }, 100);
+  const foodDisplay = document.getElementById("food-display");
+
+  if (foodDisplay) {
+    const navbarHeight = 160;
+
+    const position =
+      foodDisplay.getBoundingClientRect().top +
+      window.pageYOffset -
+      navbarHeight;
+
+    window.scrollTo({
+      top: position,
+      behavior: "smooth"
+    });
+  }
+}, 100);
+
               }
 
               if (!e.target.value) {
