@@ -1,5 +1,6 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import foodModel from "../models/foodModel.js";
 import Stripe from "stripe";
 import 'dotenv/config'
 
@@ -7,76 +8,215 @@ const stripe= new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // placing user order from frontend
 
-const placeOrder=async(req,res)=>{
-    const frontend_url='http://localhost:5174'
-    try{
-        const newOrder=new orderModel({
-            userId:req.body.userId,
-            items:req.body.items,
-            amount:req.body.amount,
-            address:req.body.address
-        })
+const placeOrder = async (req, res) => {
+
+    const frontend_url = 'http://localhost:5174';
+
+    try {
+
+        // Check stock availability before placing order
+        for (const item of req.body.items) {
+
+            const food = await foodModel.findById(item._id);
+
+            if (!food) {
+                return res.json({
+                    success: false,
+                    message: `${item.name} is no longer available`
+                });
+            }
+
+            if (item.quantity > food.stock) {
+                return res.json({
+                    success: false,
+                    message: `Only ${food.stock} ${food.name} available in stock`
+                });
+            }
+        }
+
+
+        const newOrder = new orderModel({
+
+            userId: req.body.userId,
+            items: req.body.items,
+            amount: req.body.amount,
+            address: req.body.address
+
+        });
+
         await newOrder.save();
-       await userModel.findByIdAndUpdate(req.body.userId,{cartData:{}});
-       const line_items=req.body.items.map((item)=>({
 
-        price_data:{
-            currency:'inr',
-            product_data:{
-                name:item.name
+        await userModel.findByIdAndUpdate(
+            req.body.userId,
+            { cartData: {} }
+        );
+
+
+        const line_items = req.body.items.map((item) => ({
+
+            price_data: {
+
+                currency: 'inr',
+
+                product_data: {
+                    name: item.name
+                },
+
+                unit_amount: item.price * 100
+
             },
-            unit_amount:item.price*100
-        },
-        quantity:item.quantity
-       }))
 
-       line_items.push({
-        price_data:{
-            currency:'inr',
-            product_data:{
-                name:'Delivery Charges'
+            quantity: item.quantity
+
+        }));
+
+
+        line_items.push({
+
+            price_data: {
+
+                currency: 'inr',
+
+                product_data: {
+                    name: 'Delivery Charges'
+                },
+
+                unit_amount: 40 * 100
+
             },
-            unit_amount:40*100
-        },
-        quantity:1
-       })
 
-       const session=await stripe.checkout.sessions.create({
-        line_items:line_items,
-        mode:'payment',
-        success_url:`${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
-        cancel_url:`${frontend_url}/verify?success=false&orderId=${newOrder._id}`
-       })
-       res.json({success:true,session_url:session.url})
+            quantity: 1
+
+        });
+
+
+        const session = await stripe.checkout.sessions.create({
+
+            line_items: line_items,
+
+            mode: 'payment',
+
+            success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
+
+            cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`
+
+        });
+
+
+        res.json({
+            success: true,
+            session_url: session.url
+        });
 
     }
-    catch(error){
+
+    catch (error) {
+
         console.log(error);
-        res.json({success:false,message:'Error while placing order'})
+
+        res.json({
+            success: false,
+            message: 'Error while placing order'
+        });
 
     }
 
 }
 
-const verifyOrder=async(req,res)=>{
+const verifyOrder = async (req, res) => {
 
-        const {orderId,success}=req.body;
-        try{
-            if(success==='true'){
-                await orderModel.findByIdAndUpdate(orderId,{payment:true})
-                res.json({success:true,message:'Payment successful'})
+    const { orderId, success } = req.body;
+
+    try {
+
+        if (success === 'true') {
+
+            const order = await orderModel.findById(orderId);
+
+            if (!order) {
+                return res.json({
+                    success: false,
+                    message: 'Order not found'
+                });
             }
-            else{
-                await orderModel.findByIdAndDelete(orderId);
-                res.json({success:false,message:'Payment failed'})
+
+            // Prevent stock from being reduced twice
+            if (order.payment) {
+                return res.json({
+                    success: true,
+                    message: 'Order already verified'
+                });
             }
+
+
+            // Check stock again before reducing it
+            for (const item of order.items) {
+
+                const food = await foodModel.findById(item._id);
+
+                if (!food || food.stock < item.quantity) {
+
+                    return res.json({
+                        success: false,
+                        message: `${item.name} is out of stock`
+                    });
+
+                }
+            }
+
+
+            // Reduce stock
+            for (const item of order.items) {
+
+                await foodModel.findByIdAndUpdate(
+                    item._id,
+                    {
+                        $inc: {
+                            stock: -item.quantity
+                        }
+                    }
+                );
+
+            }
+
+
+            await orderModel.findByIdAndUpdate(
+                orderId,
+                { payment: true }
+            );
+
+
+            res.json({
+                success: true,
+                message: 'Payment successful'
+            });
+
         }
 
-    catch(error){
-        console.log(error);
-        res.json({success:false,message:'Error while verifying order'})
+        else {
+
+            await orderModel.findByIdAndDelete(orderId);
+
+            res.json({
+                success: false,
+                message: 'Payment failed'
+            });
+
+        }
 
     }
+
+    catch (error) {
+
+        console.log(error);
+
+        res.json({
+            success: false,
+            message: 'Error while verifying order'
+        });
+
+    }
+
 }
 
 
