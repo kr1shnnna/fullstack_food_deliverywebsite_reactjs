@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
+import StockModal from "../components/StockModal/StockModal";
 
 
 export const StoreContext = createContext(null);
@@ -9,6 +10,17 @@ const StoreContextProvider = (props) => {
   const url='http://localhost:4000';
   const [token,setToken]=useState('');
   const [food_list,setFoodList]=useState([]);
+
+  const [showStockModal, setShowStockModal] = useState(false);
+
+const [stockInfo, setStockInfo] = useState({
+  foodName: "",
+  stock: 0
+});
+
+const [searchTerm, setSearchTerm] = useState("");
+
+
 
 
 
@@ -24,10 +36,19 @@ const StoreContextProvider = (props) => {
   const currentQuantity = cartItems[itemId] || 0;
 
   // Check available stock
+  
   if (currentQuantity >= foodItem.stock) {
-    alert(`Only ${foodItem.stock} ${foodItem.name} available in stock`);
-    return;
-  }
+
+  setStockInfo({
+    foodName: foodItem.name,
+    stock: foodItem.stock
+  });
+
+  setShowStockModal(true);
+
+  return;
+}
+
 
   if (!cartItems[itemId]) {
 
@@ -108,16 +129,29 @@ useEffect(()=>{
     getTotalCartAmount,
     url,
     token,
-    setToken
+    setToken,
+    searchTerm,
+    setSearchTerm
+    
   };
 
 
 
+ 
   return (
-    <StoreContext.Provider value={contextValue}>
-      {props.children}
-    </StoreContext.Provider>
-  );
+  <StoreContext.Provider value={contextValue}>
+
+    {props.children}
+
+    <StockModal
+      show={showStockModal}
+      onClose={() => setShowStockModal(false)}
+      foodName={stockInfo.foodName}
+      stock={stockInfo.stock}
+    />
+
+  </StoreContext.Provider>
+);
 };
 
 export default StoreContextProvider;

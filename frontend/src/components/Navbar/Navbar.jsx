@@ -1,62 +1,158 @@
-import { useState } from 'react'
-import './Navbar.css'
-import {assets} from '../../assets/assets'
-import { Link } from 'react-router-dom'
-import { useContext } from 'react'
-import { StoreContext } from '../../Context/StoreContext'
-import { useNavigate } from 'react-router-dom'
-const Navbar = ({setShowLogin}) => {
+import { useState, useContext } from "react";
 
-    const [menu,setMenu]=useState("home");
+import "./Navbar.css";
 
+import { assets } from "../../assets/assets";
 
+import { Link, useNavigate } from "react-router-dom";
 
-    const {getTotalCartAmount,token,setToken} = useContext(StoreContext)
+import { StoreContext } from "../../Context/StoreContext";
 
-    const navigate= useNavigate();
+const Navbar = ({ setShowLogin }) => {
+  const [menu, setMenu] = useState("home");
 
-    const logout=()=>{
-localStorage.removeItem('token');
-setToken('');
-navigate('/')
+  const [showSearch, setShowSearch] = useState(false);
 
-    }
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const {
+    getTotalCartAmount,
+    token,
+    setToken,
+    searchTerm,
+    setSearchTerm,
+  } = useContext(StoreContext);
+
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken("");
+    navigate("/");
+  };
+
   return (
-    <div className='navbar'>
-       <Link to='/'><img src={assets.logo} alt="" className="logo" /></Link>
-        <ul className="navbar-menu">
-            <Link to='/' onClick={()=>setMenu('home')} className={menu==='home'?'active':''}>Home</Link>
-            <a href='#explore-menu' onClick={()=>setMenu('menu')} className={menu==='menu'?'active':''}>Menu</a>
-            <a href='#app-download' onClick={()=>setMenu('mobile-app')} className={menu==='mobile-app'?'active':''}>Mobile-App</a>
-            <a href='#footer' onClick={()=>setMenu('contact-us')} className={menu==='contact-us'?'active':''}>Contact us</a>
-        </ul>
-        <div className="navbar-right">
-            <img src={assets.search_icon} />
-            <div className="navbar-search-icon">
-                <Link to='/cart'>  <img src={assets.basket_icon}/></Link>  
-                <div className={getTotalCartAmount()===0?'':'dot'}></div>
-            </div> 
-            {
-            !token?<button onClick={()=>setShowLogin(true)}>Sign In</button>
-            :<div className='navbar-profile'>
-                <img src={assets.profile_icon} />
-                <ul className='navbar-profile-dropdown'>
-                    <li onClick={()=>navigate('/myorders')}>
-                        <img src={assets.bag_icon}/>
-                        <p>Orders</p>
-                    </li>
-                    <hr />
-                    <li onClick={logout}>
-                       <img src={assets.logout_icon}/>
-                       <p>Logout</p>       
-                    </li>
-                </ul>
-                </div>} 
-            
-        </div>
- 
-    </div>
-  )
-}
+    <div className="navbar">
+      
+      {/* Logo */}
+      <Link to="/">
+        <img src={assets.logo} alt="" className="logo" />
+      </Link>
 
-export default Navbar
+      {/* Navigation Menu */}
+      <ul className="navbar-menu">
+        <Link
+          to="/"
+          onClick={() => setMenu("home")}
+          className={menu === "home" ? "active" : ""}
+        >
+          Home
+        </Link>
+
+        <a
+          href="#explore-menu"
+          onClick={() => setMenu("menu")}
+          className={menu === "menu" ? "active" : ""}
+        >
+          Menu
+        </a>
+
+        <a
+          href="#app-download"
+          onClick={() => setMenu("mobile-app")}
+          className={menu === "mobile-app" ? "active" : ""}
+        >
+          Mobile-App
+        </a>
+
+        <a
+          href="#footer"
+          onClick={() => setMenu("contact-us")}
+          className={menu === "contact-us" ? "active" : ""}
+        >
+          Contact us
+        </a>
+      </ul>
+
+      {/* Right Side */}
+      <div className="navbar-right">
+
+        {/* Search Icon */}
+        <img
+          src={assets.search_icon}
+          className="search-icon"
+          onClick={() => setShowSearch(!showSearch)}
+          alt="Search"
+        />
+
+        {/* Cart */}
+        <div className="navbar-search-icon">
+          <Link to="/cart">
+            <img src={assets.basket_icon} alt="" />
+          </Link>
+
+          <div className={getTotalCartAmount() === 0 ? "" : "dot"}></div>
+        </div>
+
+        {/* Login / Profile */}
+        {!token ? (
+          <button onClick={() => setShowLogin(true)}>Sign In</button>
+        ) : (
+          <div className="navbar-profile">
+            <img src={assets.profile_icon} alt="" />
+
+            <ul className="navbar-profile-dropdown">
+              <li onClick={() => navigate("/myorders")}>
+                <img src={assets.bag_icon} alt="" />
+                <p>Orders</p>
+              </li>
+
+              <hr />
+
+              <li onClick={logout}>
+                <img src={assets.logout_icon} alt="" />
+                <p>Logout</p>
+              </li>
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* SEARCH PANEL - Outside navbar-right */}
+      {showSearch && (
+        <div className="search-panel">
+          <img src={assets.search_icon} alt="" />
+
+          <input
+            type="text"
+            placeholder="Search for your favourite food..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+
+              if (e.target.value && !hasSearched) {
+                setHasSearched(true);
+
+                setTimeout(() => {
+                  document
+                    .getElementById("food-display")
+                    ?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                }, 100);
+              }
+
+              if (!e.target.value) {
+                setHasSearched(false);
+              }
+            }}
+            autoFocus
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Navbar;
