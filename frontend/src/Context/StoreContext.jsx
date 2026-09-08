@@ -12,16 +12,50 @@ const StoreContextProvider = (props) => {
 
 
 
+
   const addToCart = async (itemId) => {
-    if (!cartItems[itemId]) {
-      setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
-    } else {
-      setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
-    }
-    if(token){
-      await axios.post(url+'/api/cart/add',{itemId},{headers:{token}})
-    }
-  };
+
+  const foodItem = food_list.find((item) => item._id === itemId);
+
+  if (!foodItem) {
+    return;
+  }
+
+  const currentQuantity = cartItems[itemId] || 0;
+
+  // Check available stock
+  if (currentQuantity >= foodItem.stock) {
+    alert(`Only ${foodItem.stock} ${foodItem.name} available in stock`);
+    return;
+  }
+
+  if (!cartItems[itemId]) {
+
+    setCartItems((prev) => ({
+      ...prev,
+      [itemId]: 1
+    }));
+
+  } else {
+
+    setCartItems((prev) => ({
+      ...prev,
+      [itemId]: prev[itemId] + 1
+    }));
+
+  }
+
+  if (token) {
+
+    await axios.post(
+      url + '/api/cart/add',
+      { itemId },
+      { headers: { token } }
+    );
+
+  }
+
+};
 
   const removeFromCart = async(itemId) => {
     setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
@@ -48,7 +82,7 @@ const StoreContextProvider = (props) => {
 
   const loadCartData= async(token)=>{
     const response=await axios.post(url+'/api/cart/get',{},{headers:{token}});
-    setCartItems(response.data.cartData);
+    setCartItems(response.data.cartData || {});
 
   }
 

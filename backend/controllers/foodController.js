@@ -12,7 +12,8 @@ const food=new foodModel({
     description:req.body.description,
     price:req.body.price,
     image:image_filename,
-    category:req.body.category
+    category:req.body.category,
+    stock:req.body.stock
 })
 try{
     await food.save();

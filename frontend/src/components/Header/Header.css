@@ -41,8 +41,20 @@
     background-color:white;
     font-size:max(1vw,13px);
     border-radius:50px;
+    cursor:pointer;
 
 
+}
+
+.header-contents button:hover{
+    background-color:black;
+    transition:0.3s;
+    color:white;
+}
+
+.header-contents button:active{
+    transform:scale(0.9);
+    transition:0.1s;
 }
 
 @media (max-width:1050px){
