@@ -76,9 +76,44 @@ console.log(error);
 res.json({success:false,message:'Error in registering user'})
     }
 
-        
-    
-
 }
 
-export {loginUser,registerUser}
+const getProfile = async (req, res) => {
+        try {
+            const user = await userModel.findById(req.body.userId).select('-password -cartData');
+
+            if (!user) {
+                return res.json({success:false,message:'User not found'});
+            }
+
+            res.json({success:true,data:user});
+        }
+        catch(error){
+            console.log(error);
+            res.json({success:false,message:'Error while fetching profile'});
+        }
+    };
+
+const updateProfile = async (req, res) => {
+        const {name, gender, phone, address} = req.body;
+
+        try {
+            const user = await userModel.findByIdAndUpdate(
+                req.body.userId,
+                {name, gender, phone, address},
+                {new:true, runValidators:true}
+            ).select('-password -cartData');
+
+            if (!user) {
+                return res.json({success:false,message:'User not found'});
+            }
+
+            res.json({success:true,data:user});
+        }
+        catch(error){
+            console.log(error);
+            res.json({success:false,message:'Error while updating profile'});
+        }
+    };
+
+export {loginUser,registerUser,getProfile,updateProfile}

@@ -2,10 +2,8 @@ import AppDownload from '../../components/AppDownload/AppDownload'
 import ExploreMenu from '../../components/ExploreMenu/ExploreMenu'
 import FoodDisplay from '../../components/FoodDisplay/FoodDisplay'
 import Header from '../../components/Header/Header'
-import './Home.css'
-
 import { useState, useContext } from 'react'
-import { StoreContext } from '../../Context/StoreContext'
+import { StoreContext } from '../../Context/StoreContextDefinition'
 
 const Home = () => {
 

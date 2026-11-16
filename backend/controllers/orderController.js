@@ -10,7 +10,7 @@ const stripe= new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const placeOrder = async (req, res) => {
 
-    const frontend_url = 'http://localhost:5174';
+    const frontend_url = process.env.FRONTEND_URL || 'http://localhost:5173';
 
     try {
 
@@ -45,12 +45,6 @@ const placeOrder = async (req, res) => {
         });
 
         await newOrder.save();
-
-        await userModel.findByIdAndUpdate(
-            req.body.userId,
-            { cartData: {} }
-        );
-
 
         const line_items = req.body.items.map((item) => ({
 
@@ -185,6 +179,11 @@ const verifyOrder = async (req, res) => {
                 { payment: true }
             );
 
+            await userModel.findByIdAndUpdate(
+                order.userId,
+                { cartData: {} }
+            );
+
 
             res.json({
                 success: true,
@@ -227,7 +226,8 @@ const userOrders = async (req, res) => {
     try {
 
         const orders = await orderModel.find({
-            userId: req.body.userId
+            userId: req.body.userId,
+            payment: true
         });
 
         res.json({

@@ -1,9 +1,8 @@
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import StockModal from "../components/StockModal/StockModal";
-
-
-export const StoreContext = createContext(null);
+import AuthAlert from "../components/AuthAlert/AuthAlert";
+import { StoreContext } from "./StoreContextDefinition";
 
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
@@ -19,6 +18,7 @@ const [stockInfo, setStockInfo] = useState({
 });
 
 const [searchTerm, setSearchTerm] = useState("");
+const [showAuthAlert, setShowAuthAlert] = useState(false);
 
 
 
@@ -26,6 +26,11 @@ const [searchTerm, setSearchTerm] = useState("");
 
 
   const addToCart = async (itemId) => {
+
+  if (!token) {
+    setShowAuthAlert(true);
+    return;
+  }
 
   const foodItem = food_list.find((item) => item._id === itemId);
 
@@ -149,6 +154,9 @@ useEffect(()=>{
       foodName={stockInfo.foodName}
       stock={stockInfo.stock}
     />
+    {showAuthAlert && (
+      <AuthAlert onClose={() => setShowAuthAlert(false)} />
+    )}
 
   </StoreContext.Provider>
 );

@@ -1,10 +1,8 @@
-import './LoginPopup.css'
-
 import { useState, useContext } from 'react'
 
 import { assets } from '../../assets/assets'
 
-import { StoreContext } from '../../Context/StoreContext'
+import { StoreContext } from '../../Context/StoreContextDefinition'
 
 import axios from 'axios'
 
@@ -92,26 +90,26 @@ const LoginPopup = ({ setShowLogin }) => {
 
   return (
 
-    <div className='login-popup'>
+    <div className='fixed inset-0 z-[2000] grid h-screen w-full bg-black/50 animate-[overlayFadeIn_0.3s_ease_forwards]'>
 
       {loginSuccess ? (
 
         /* SUCCESS SCREEN */
 
-        <div className="login-success">
+        <div className="place-self-center flex w-[max(23vw,330px)] flex-col items-center rounded-xl bg-white px-[30px] py-[45px] text-center animate-[successPopup_0.4s_ease_forwards]">
 
-          <div className="success-checkmark">
+          <div className="mb-[15px] flex h-[70px] w-[70px] items-center justify-center rounded-full bg-[#4caf50] text-[40px] font-bold text-white animate-[checkPop_0.5s_ease_forwards]">
             ✓
           </div>
 
-          <h2>
+          <h2 className="mb-2 text-[#333]">
             {currState === 'Login'
               ? 'Login Successful!'
               : 'Account Created!'
             }
           </h2>
 
-          <p>
+          <p className="text-[#808080]">
             Welcome to ZaykaWala 🎉
           </p>
 
@@ -121,22 +119,23 @@ const LoginPopup = ({ setShowLogin }) => {
 
         /* LOGIN FORM */
 
-        <form onSubmit={onLogin} className="login-popup-container">
+        <form onSubmit={onLogin} className="place-self-center flex w-[max(23vw,330px)] flex-col gap-[25px] rounded-lg bg-white px-[30px] py-[25px] text-sm text-[#808080] animate-[popupIn_0.35s_ease_forwards]">
 
-          <div className="login-popup-title">
+          <div className="flex items-center justify-between text-black">
 
             <h2>{currState}</h2>
 
             <img
               onClick={() => setShowLogin(false)}
               src={assets.cross_icon}
-              alt=""
+              className="w-4 cursor-pointer"
+              alt="Close"
             />
 
           </div>
 
 
-          <div className="login-popup-inputs">
+          <div className="flex flex-col gap-5">
 
             {currState === 'Login'
               ? <></>
@@ -147,6 +146,7 @@ const LoginPopup = ({ setShowLogin }) => {
                   value={data.name}
                   type='text'
                   placeholder='Your Name'
+                  className="rounded border border-[#c9c9c9] p-2.5 text-sm outline-none"
                   required
                 />
               )
@@ -159,6 +159,7 @@ const LoginPopup = ({ setShowLogin }) => {
               value={data.email}
               type='email'
               placeholder='Your Email'
+              className="rounded border border-[#c9c9c9] p-2.5 text-sm outline-none"
               required
             />
 
@@ -169,13 +170,14 @@ const LoginPopup = ({ setShowLogin }) => {
               value={data.password}
               type='password'
               placeholder='Password'
+              className="rounded border border-[#c9c9c9] p-2.5 text-sm outline-none"
               required
             />
 
           </div>
 
 
-          <button type='submit'>
+          <button className="cursor-pointer rounded border-none bg-[tomato] p-2.5 text-[15px] text-white" type='submit'>
             {currState === 'Sign Up'
               ? 'Create Account'
               : 'Login'
@@ -184,9 +186,9 @@ const LoginPopup = ({ setShowLogin }) => {
 
 
          {currState === 'Sign Up' && (
-    <div className="login-popup-condition">
+    <div className="mt-[-15px] flex items-start gap-2">
 
-        <input type='checkbox' required />
+        <input className="mt-1" type='checkbox' required />
 
         <p>
             By continuing, I agree to the terms of use & privacy policy.
@@ -199,18 +201,18 @@ const LoginPopup = ({ setShowLogin }) => {
 
           {currState === 'Login' ? (
 
-            <p>
+            <p className="mt-2 leading-6">
               Create a new account?
-              <span onClick={() => setCurrState('Sign Up')}>
+              <span className="ml-1 cursor-pointer font-medium text-[tomato]" onClick={() => setCurrState('Sign Up')}>
                 Click here
               </span>
             </p>
 
           ) : (
 
-            <p>
+            <p className="mt-2 leading-6">
               Already have an account?
-              <span onClick={() => setCurrState('Login')}>
+              <span className="ml-1 cursor-pointer font-medium text-[tomato]" onClick={() => setCurrState('Login')}>
                 Login here
               </span>
             </p>

@@ -1,37 +1,37 @@
-import './Verify.css'
 import { useSearchParams } from 'react-router-dom'
 import { useContext } from 'react'
-import { StoreContext } from '../../Context/StoreContext'
+import { StoreContext } from '../../Context/StoreContextDefinition'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 
 const Verify = () => {
-    const [searchParams,setSearchParams]=useSearchParams();
+    const [searchParams]=useSearchParams();
     const success=searchParams.get('success');
     const orderId=searchParams.get('orderId');
-    const {url}=useContext(StoreContext);
+    const {url, setCartItems}=useContext(StoreContext);
     const navigate=useNavigate();
 
-    const verifyPayment=async()=>{
+    const verifyPayment=useCallback(async()=>{
         const response= await axios.post(url+'/api/placeorder/verify',{success,orderId})
         if(response.data.success){
+            setCartItems({});
             navigate('/myorders')
         }
         else{
-            navigate('/')
+            navigate('/cart')
         }
-    }
+    }, [navigate, orderId, setCartItems, success, url])
 
   useEffect(()=>{
     verifyPayment();
-  },[])
+  },[verifyPayment])
 
 
 
   return (
-    <div className='verify'>
-        <div className="spinner">
+    <div className='grid min-h-[60vh]'>
+        <div className="size-[100px] place-self-center rounded-full border-[5px] border-[#bdbdbd] border-t-[tomato] animate-[rotate_1s_infinite]">
 
         </div>
     </div>

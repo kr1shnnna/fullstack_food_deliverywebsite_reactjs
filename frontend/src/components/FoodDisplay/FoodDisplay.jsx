@@ -1,6 +1,5 @@
 import { useContext } from "react";
-import "./FoodDisplay.css";
-import { StoreContext } from "../../Context/StoreContext";
+import { StoreContext } from "../../Context/StoreContextDefinition";
 import FoodItem from "../FoodItem/FoodItem";
 
 const FoodDisplay = ({ category }) => {
@@ -21,10 +20,10 @@ const FoodDisplay = ({ category }) => {
 
   return (
 
-    <div className="food-display" id="food-display">
+    <div className="mt-[30px]" id="food-display">
 
       {/* Dynamic heading */}
-      <h2>
+      <h2 className="text-[max(2vw,24px)] font-semibold">
         {searchTerm
           ? `Search results for "${searchTerm}"`
           : "Top dishes near you"}
@@ -33,7 +32,7 @@ const FoodDisplay = ({ category }) => {
       {/* Show food if results exist */}
       {filteredFood.length > 0 ? (
 
-        <div className="food-display-list">
+        <div className="mt-[30px] grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-x-[30px] gap-y-[50px]">
 
           {filteredFood.map((item, index) => (
 
@@ -52,15 +51,15 @@ const FoodDisplay = ({ category }) => {
 
       ) : (
 
-        <div className="no-results">
+        <div className="p-[60px_20px] text-center text-[#49557e]">
 
-          <h3>No dishes found 😔</h3>
+          <h3 className="mb-2.5 text-2xl">No dishes found 😔</h3>
 
-          <p>
+          <p className="my-[5px] text-base text-[#747474]">
             We couldn't find any food matching "{searchTerm}".
           </p>
 
-          <p>Try searching for something else.</p>
+          <p className="my-[5px] text-base text-[#747474]">Try searching for something else.</p>
 
         </div>
 
