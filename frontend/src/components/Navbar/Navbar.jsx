@@ -1,4 +1,4 @@
-import { useState, useContext ,useEffect } from "react";
+import { useState, useContext ,useEffect, useRef } from "react";
 import axios from "axios";
 
 import { assets } from "../../assets/assets";
@@ -17,6 +17,10 @@ const Navbar = ({ setShowLogin }) => {
   const [scrolled, setScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [orderNotifications, setOrderNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [readNotificationKeys, setReadNotificationKeys] = useState([]);
+  const loadedReadToken = useRef("");
 
   useEffect(() => {
 
@@ -68,6 +72,44 @@ const Navbar = ({ setShowLogin }) => {
     fetchProfileName();
   }, [token, url]);
 
+  useEffect(() => {
+    if (!token) {
+      return undefined;
+    }
+
+    const fetchOrderNotifications = async () => {
+      if (loadedReadToken.current !== token) {
+        const storedKeys = localStorage.getItem(`read-order-notifications:${token}`);
+        try {
+          const parsedKeys = storedKeys ? JSON.parse(storedKeys) : [];
+          setReadNotificationKeys(Array.isArray(parsedKeys) ? parsedKeys : []);
+        } catch {
+          setReadNotificationKeys([]);
+        }
+        loadedReadToken.current = token;
+      }
+
+      try {
+        const response = await axios.post(
+          `${url}/api/placeorder/userorders`,
+          {},
+          { headers: { token } }
+        );
+
+        if (response.data.success) {
+          setOrderNotifications(response.data.data);
+        }
+      } catch {
+        // The existing orders page remains the source of truth if polling is unavailable.
+      }
+    };
+
+    fetchOrderNotifications();
+    const refreshInterval = setInterval(fetchOrderNotifications, 3000);
+
+    return () => clearInterval(refreshInterval);
+  }, [token, url]);
+
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const isCheckoutFlow = ["/cart", "/order", "/verify"].includes(pathname);
@@ -76,7 +118,18 @@ const Navbar = ({ setShowLogin }) => {
     localStorage.removeItem("token");
     setToken("");
     setProfileName("");
+    setOrderNotifications([]);
+    setReadNotificationKeys([]);
+    setShowNotifications(false);
     navigate("/");
+  };
+
+  const getNotificationKey = (order) => `${order._id}:${order.status}`;
+
+  const markAllNotificationsRead = () => {
+    const keys = orderNotifications.map(getNotificationKey);
+    setReadNotificationKeys(keys);
+    localStorage.setItem(`read-order-notifications:${token}`, JSON.stringify(keys));
   };
 
   // Close search and reset everything
@@ -97,6 +150,10 @@ const Navbar = ({ setShowLogin }) => {
 
     return `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase();
   };
+
+  const unreadNotifications = orderNotifications.filter(
+    (order) => !readNotificationKeys.includes(getNotificationKey(order))
+  );
 
   return (
    <div className={`sticky top-0 z-[1000] flex items-center justify-between bg-white px-[1%] py-4 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all duration-300 max-[750px]:py-3 ${scrolled ? "bg-[#fff0eb] shadow-[0_4px_15px_rgba(0,0,0,0.08)]" : ""}`}>
@@ -157,6 +214,73 @@ const Navbar = ({ setShowLogin }) => {
             onClick={() => setShowSearch(!showSearch)}
             alt="Search"
           />
+        )}
+
+        {token && (
+          <div className="relative">
+            <button
+              type="button"
+              className="relative flex size-9 items-center justify-center rounded-full text-[#49557e] transition hover:bg-[#fff0eb] hover:text-[tomato]"
+              onClick={() => setShowNotifications((current) => !current)}
+              aria-label="View order notifications"
+              aria-expanded={showNotifications}
+            >
+              <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {unreadNotifications.length > 0 && (
+                <span className="absolute right-0.5 top-0.5 size-2.5 rounded-full bg-[tomato] ring-2 ring-white" />
+              )}
+            </button>
+
+            {showNotifications && (
+              <div className="absolute right-0 top-full z-[1001] mt-3 w-[min(320px,calc(100vw-2rem))] rounded-xl border border-[#ffd0c7] bg-white p-3 shadow-lg">
+                <div className="mb-2 flex items-center justify-between px-2">
+                  <p className="font-semibold text-[#333]">Order updates</p>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-[tomato] disabled:cursor-not-allowed disabled:text-[#aaa]"
+                    onClick={markAllNotificationsRead}
+                    disabled={unreadNotifications.length === 0}
+                  >
+                    Mark all as read
+                  </button>
+                </div>
+                {orderNotifications.length > 0 ? (
+                  <div className="flex max-h-64 flex-col gap-1 overflow-y-auto">
+                    {orderNotifications.slice(0, 5).map((order) => (
+                      <button
+                        type="button"
+                        key={order._id}
+                        className="rounded-lg px-2 py-2 text-left text-sm text-[#555] transition hover:bg-[#fff0eb]"
+                        onClick={() => {
+                          setShowNotifications(false);
+                          navigate("/myorders");
+                        }}
+                      >
+                        <span className="font-medium text-[#333]">Order #{order._id.slice(-6).toUpperCase()}</span>
+                        <span className="mt-0.5 block text-xs text-[tomato]">
+                          {order.status === "Delivered" ? "Your order has been delivered." : `Order placed · ${order.status}`}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="px-2 py-3 text-sm text-[#888]">No order updates yet.</p>
+                )}
+                <button
+                  type="button"
+                  className="mt-2 w-full rounded-lg bg-[#fff0eb] px-3 py-2 text-sm font-medium text-[tomato] hover:bg-[#ffe1da]"
+                  onClick={() => {
+                    setShowNotifications(false);
+                    navigate("/myorders");
+                  }}
+                >
+                  View my orders
+                </button>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Cart */}

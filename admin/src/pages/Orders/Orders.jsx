@@ -20,11 +20,11 @@ const Orders = ({ url }) => {
     }
   }, [url]);
 
-  const statusHandler = async (event, orderId) => {
+  const statusHandler = async (status, orderId) => {
     try {
       const response = await axios.post(`${url}/api/placeorder/status`, {
         orderId,
-        status: event.target.value,
+        status,
       });
       if (response.data.success) {
         await fetchAllOrders();
@@ -35,6 +35,12 @@ const Orders = ({ url }) => {
       console.log(error);
       toast.error("Error while updating order status");
     }
+  };
+
+  const getNextStatus = (status) => {
+    if (status === "Food Processing") return "Out for delivery";
+    if (status === "Out for delivery") return "Delivered";
+    return null;
   };
 
   useEffect(() => {
@@ -113,13 +119,21 @@ const Orders = ({ url }) => {
                 Delivery status
                 <select
                   className="rounded-lg border border-[#d9deea] bg-white px-3 py-2 font-normal outline-none focus:border-[tomato]"
-                  onChange={(event) => statusHandler(event, order._id)}
+                  onChange={(event) => statusHandler(event.target.value, order._id)}
                   value={order.status}
                 >
-                  <option value="Food Processing">Food Processing</option>
-                  <option value="Out for delivery">Out for delivery</option>
-                  <option value="Delivered">Delivered</option>
+                  <option value="Food Processing" disabled={order.status !== "Food Processing"}>Food Processing</option>
+                  <option value="Out for delivery" disabled={order.status === "Delivered"}>Out for delivery</option>
+                  <option value="Delivered" disabled={order.status === "Food Processing"}>Delivered</option>
                 </select>
+                <button
+                  type="button"
+                  className="rounded-lg bg-[tomato] px-3 py-2 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-[#d9deea] disabled:text-[#8b94a7]"
+                  disabled={!getNextStatus(order.status)}
+                  onClick={() => statusHandler(getNextStatus(order.status), order._id)}
+                >
+                  {getNextStatus(order.status) ? `Mark ${getNextStatus(order.status)}` : "Order completed"}
+                </button>
               </label>
             </div>
           </div>

@@ -298,14 +298,17 @@ const updateStatus= async(req,res)=>{
             return res.json({success:false,message:'Invalid delivery status'});
         }
 
-        const order = await orderModel.findOneAndUpdate(
-            {_id:req.body.orderId, payment:true},
-            {status:req.body.status},
-            {new:true}
-        );
+        const order = await orderModel.findOne({_id:req.body.orderId, payment:true});
         if (!order) {
             return res.json({success:false,message:'Paid order not found'});
         }
+        const statusOrder = ['Food Processing', 'Out for delivery', 'Delivered'];
+        const currentStatusIndex = statusOrder.indexOf(order.status);
+        const requestedStatusIndex = statusOrder.indexOf(req.body.status);
+        if (requestedStatusIndex < currentStatusIndex || requestedStatusIndex > currentStatusIndex + 1) {
+            return res.json({success:false,message:'Order status can only move forward one step at a time'});
+        }
+        await orderModel.findByIdAndUpdate(req.body.orderId, {status:req.body.status});
         res.json({success:true,message:'Order status updated successfully'})
     }
     catch(error){
