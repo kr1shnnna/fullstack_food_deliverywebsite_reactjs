@@ -4,16 +4,19 @@ import Home from './pages/Home/Home'
 import Cart from './pages/Cart/Cart'
 import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
 import Footer from './components/Footer/Footer'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import LoginPopup from './components/LoginPopup/LoginPopup'
 import Verify from './pages/Verify/Verify'
 import MyOrders from './pages/MyOrders/MyOrders'
 import Profile from './pages/Profile/Profile'
 import EditProfile from './pages/EditProfile/EditProfile'
+import { StoreContext } from './Context/StoreContextDefinition'
 const App = () => {
 
   const [showLogin,setShowLogin]=useState(false)
   const { pathname } = useLocation()
+  const { searchTerm } = useContext(StoreContext)
+  const isSearchMode = Boolean(searchTerm.trim())
   return (
     <div className="flex min-h-screen flex-col">
     {showLogin?<LoginPopup  setShowLogin={setShowLogin}/>: <></>}
@@ -33,7 +36,7 @@ const App = () => {
     </Routes>
 
     </div>
-    {pathname !== '/cart' && pathname !== '/order' && pathname !== '/myorders' && <Footer />}
+    {pathname !== '/cart' && pathname !== '/order' && pathname !== '/myorders' && !isSearchMode && <Footer />}
     </div>
   )
 }

@@ -5,15 +5,16 @@ import FoodItem from "../FoodItem/FoodItem";
 const FoodDisplay = ({ category }) => {
 
   const { food_list, searchTerm } = useContext(StoreContext);
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
   // Filter food based on category and search term
   const filteredFood = food_list.filter((item) => {
 
     const matchesCategory =
-      category === "All" || category === item.category;
+      Boolean(normalizedSearchTerm) || category === "All" || category === item.category;
 
     const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase());
+      item.name.toLowerCase().includes(normalizedSearchTerm);
 
     return matchesCategory && matchesSearch;
   });
@@ -53,10 +54,10 @@ const FoodDisplay = ({ category }) => {
 
         <div className="p-[60px_20px] text-center text-[#49557e]">
 
-          <h3 className="mb-2.5 text-2xl">No dishes found 😔</h3>
+          <h3 className="mb-2.5 text-2xl">No food found</h3>
 
           <p className="my-[5px] text-base text-[#747474]">
-            We couldn't find any food matching "{searchTerm}".
+            No food matches "{searchTerm}".
           </p>
 
           <p className="my-[5px] text-base text-[#747474]">Try searching for something else.</p>

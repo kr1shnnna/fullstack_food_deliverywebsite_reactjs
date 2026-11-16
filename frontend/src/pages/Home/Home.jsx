@@ -10,20 +10,23 @@ const Home = () => {
   const [category, setCategory] = useState('All')
 
   const { searchTerm } = useContext(StoreContext)
+  const isSearchMode = Boolean(searchTerm.trim())
 
   return (
     <div id="home">
 
-      <Header />
+      {!isSearchMode && <Header />}
 
-      <ExploreMenu
-        category={category}
-        setCategory={setCategory}
-      />
+      {!isSearchMode && (
+        <ExploreMenu
+          category={category}
+          setCategory={setCategory}
+        />
+      )}
 
       <FoodDisplay category={category} />
 
-      {!searchTerm && <AppDownload />}
+      {!isSearchMode && <AppDownload />}
 
     </div>
   )
