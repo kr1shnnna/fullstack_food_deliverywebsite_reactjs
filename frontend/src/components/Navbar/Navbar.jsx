@@ -99,7 +99,7 @@ const Navbar = ({ setShowLogin }) => {
   };
 
   return (
-   <div className={`sticky top-0 z-[1000] flex items-center justify-between bg-white px-[1%] py-4 transition-all duration-300 max-[750px]:py-3 ${scrolled ? "bg-[#fff0eb] shadow-[0_4px_15px_rgba(0,0,0,0.08)]" : ""}`}>
+   <div className={`sticky top-0 z-[1000] flex items-center justify-between bg-white px-[1%] py-4 shadow-[0_2px_10px_rgba(0,0,0,0.06)] transition-all duration-300 max-[750px]:py-3 ${scrolled ? "bg-[#fff0eb] shadow-[0_4px_15px_rgba(0,0,0,0.08)]" : ""}`}>
 
       {/* Logo */}
       <Link to="/">
