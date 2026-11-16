@@ -10,18 +10,18 @@ const App = () => {
 
   const url='http://localhost:4000';
   return (
-    <div>
-      <ToastContainer/>
+    <div className="min-h-screen bg-[#f7f8fc] text-[#243047]">
+      <ToastContainer position="top-right" autoClose={2500} />
       <Navbar/>
-      <hr />
-      <div className="app-content">
+      <div className="flex min-h-[calc(100vh-81px)] border-t border-[#e8ebf2]">
         <Sidebar/>
-        <Routes>
-          <Route path='/add' element={<Add  url={url}/>}/>
-          <Route path='/list' element={<List url={url}/>}/>
-          <Route path='/orders' element={<Orders url={url}/>}/>
-
-        </Routes>
+        <main className="min-w-0 flex-1 p-5 sm:p-8 lg:p-10">
+          <Routes>
+            <Route path='/add' element={<Add  url={url}/>}/>
+            <Route path='/list' element={<List url={url}/>}/>
+            <Route path='/orders' element={<Orders url={url}/>}/>
+          </Routes>
+        </main>
       </div>
     </div>
   )

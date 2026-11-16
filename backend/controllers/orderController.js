@@ -248,7 +248,7 @@ const userOrders = async (req, res) => {
 
 const listOrders=async(req,res)=>{
 try{
-const orders=await orderModel.find({});
+const orders=await orderModel.find({payment:true}).sort({date:-1});
 res.json({success:true,data:orders})
 }
 catch(error){

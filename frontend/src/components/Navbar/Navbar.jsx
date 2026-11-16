@@ -188,12 +188,17 @@ const Navbar = ({ setShowLogin }) => {
             <ul className="absolute right-0 top-full z-[1001] mt-3 flex min-w-[190px] list-none flex-col gap-2 rounded-lg border border-[#ffd0c7] bg-white p-3 shadow-lg">
 
               <li className="flex cursor-pointer items-center gap-2.5 rounded px-3 py-2.5 hover:bg-[#fff0eb] hover:text-[tomato]" onClick={() => { setShowProfileMenu(false); navigate("/profile"); }}>
-                <img className="w-5" src={assets.profile_icon} alt="" />
+                <svg className="size-5 text-[tomato]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                  <circle cx="12" cy="8" r="3" />
+                  <path d="M5.5 19c.8-3 3.1-4.5 6.5-4.5s5.7 1.5 6.5 4.5" strokeLinecap="round" />
+                </svg>
                 <p>My Profile</p>
               </li>
 
               <li className="flex cursor-pointer items-center gap-2.5 rounded px-3 py-2.5 hover:bg-[#fff0eb] hover:text-[tomato]" onClick={() => { setShowProfileMenu(false); navigate("/edit-profile"); }}>
-                <img className="w-5" src={assets.profile_icon} alt="" />
+                <svg className="size-5 text-[tomato]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                  <path d="M13.5 5.5 18.5 10.5M4.5 19.5l1-4.2L16.8 4a1.8 1.8 0 0 1 2.5 0l.7.7a1.8 1.8 0 0 1 0 2.5L8.7 18.5l-4.2 1Z" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
                 <p>Edit Profile</p>
               </li>
 

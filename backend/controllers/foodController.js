@@ -55,4 +55,65 @@ res.json({success:true,message:'Food item removed successfully'})
     }
 }
 
-export {addFood,listFood,removeFood}
+const updateStock = async (req, res) => {
+    const { id, stock } = req.body;
+    const parsedStock = Number(stock);
+
+    if (!id || !Number.isInteger(parsedStock) || parsedStock < 0) {
+        return res.json({success:false,message:'Stock must be a non-negative whole number'});
+    }
+
+    try {
+        const food = await foodModel.findByIdAndUpdate(
+            id,
+            {stock: parsedStock},
+            {new:true, runValidators:true}
+        );
+
+        if (!food) {
+            return res.json({success:false,message:'Food item not found'});
+        }
+
+        res.json({success:true,message:'Stock updated successfully',data:food});
+    }
+    catch(error){
+        console.log(error);
+        res.json({success:false,message:'Error while updating stock'});
+    }
+}
+
+const updateFoodDetails = async (req, res) => {
+    const { id, price, stock } = req.body;
+    const parsedPrice = Number(price);
+    const parsedStock = Number(stock);
+
+    if (
+        !id ||
+        !Number.isFinite(parsedPrice) ||
+        parsedPrice <= 0 ||
+        !Number.isInteger(parsedStock) ||
+        parsedStock < 0
+    ) {
+        return res.json({success:false,message:'Price must be positive and stock must be a non-negative whole number'});
+    }
+
+    try {
+        const food = await foodModel.findByIdAndUpdate(
+            id,
+            {price: parsedPrice, stock: parsedStock},
+            {new:true, runValidators:true}
+        );
+
+        if (!food) {
+            return res.json({success:false,message:'Food item not found'});
+        }
+
+        res.json({success:true,message:'Price and stock updated successfully',data:food});
+    }
+    catch(error){
+        console.log(error);
+        res.json({success:false,message:'Error while updating food details'});
+    }
+}
+
+export {addFood,listFood,removeFood,updateStock,updateFoodDetails}
