@@ -7,7 +7,7 @@ import { StoreContext } from "./StoreContextDefinition";
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const url='http://localhost:4000';
-  const [token,setToken]=useState('');
+  const [token,setToken]=useState(() => localStorage.getItem('token') || '');
   const [food_list,setFoodList]=useState([]);
 
   const [showStockModal, setShowStockModal] = useState(false);
@@ -29,13 +29,13 @@ const [showAuthAlert, setShowAuthAlert] = useState(false);
 
   if (!token) {
     setShowAuthAlert(true);
-    return;
+    return false;
   }
 
   const foodItem = food_list.find((item) => item._id === itemId);
 
   if (!foodItem) {
-    return;
+    return false;
   }
 
   const currentQuantity = cartItems[itemId] || 0;
@@ -81,6 +81,8 @@ const [showAuthAlert, setShowAuthAlert] = useState(false);
 
   }
 
+  return true;
+
 };
 
   const removeFromCart = async(itemId) => {
@@ -117,10 +119,10 @@ useEffect(()=>{
   
   async function loadData(){
     await fetchFoodList();
-    if(localStorage.getItem('token')){
-    setToken(localStorage.getItem('token'))
-    await loadCartData(localStorage.getItem('token'));
-  }
+    const storedToken = localStorage.getItem('token');
+    if(storedToken){
+      await loadCartData(storedToken);
+    }
   }
   loadData();
 },[])

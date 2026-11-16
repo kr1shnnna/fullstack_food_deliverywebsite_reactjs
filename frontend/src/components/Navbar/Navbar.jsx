@@ -16,6 +16,7 @@ const Navbar = ({ setShowLogin }) => {
 
   const [scrolled, setScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   useEffect(() => {
 
@@ -85,6 +86,8 @@ const Navbar = ({ setShowLogin }) => {
     setHasSearched(false);
   };
 
+  const closeMobileMenu = () => setShowMobileMenu(false);
+
   const getInitials = (name) => {
     const nameParts = name.trim().split(/\s+/).filter(Boolean);
 
@@ -96,11 +99,11 @@ const Navbar = ({ setShowLogin }) => {
   };
 
   return (
-   <div className={`sticky top-0 z-[1000] flex items-center justify-between bg-white px-[1%] py-5 transition-all duration-300 ${scrolled ? "bg-[#fff0eb] shadow-[0_4px_15px_rgba(0,0,0,0.08)]" : ""}`}>
+   <div className={`sticky top-0 z-[1000] flex items-center justify-between bg-white px-[1%] py-4 transition-all duration-300 max-[750px]:py-3 ${scrolled ? "bg-[#fff0eb] shadow-[0_4px_15px_rgba(0,0,0,0.08)]" : ""}`}>
 
       {/* Logo */}
       <Link to="/">
-        <img src={assets.logo} alt="ZaykaWala" className="block w-[180px] max-[1050px]:w-[140px] max-[900px]:w-[120px]" />
+        <img src={assets.logo} alt="ZaykaWala" className="block w-[180px] max-[1050px]:w-[140px] max-[900px]:w-[120px] max-[750px]:w-[135px]" />
       </Link>
 
       {/* Navigation Menu */}
@@ -144,7 +147,7 @@ const Navbar = ({ setShowLogin }) => {
       )}
 
       {/* Right Side */}
-      <div className="flex items-center gap-10 max-[1050px]:gap-[30px] max-[900px]:gap-5">
+      <div className="flex items-center gap-10 max-[1050px]:gap-[30px] max-[900px]:gap-5 max-[750px]:gap-3">
 
         {/* ORIGINAL SEARCH ICON */}
         {!isCheckoutFlow && (
@@ -158,7 +161,7 @@ const Navbar = ({ setShowLogin }) => {
 
         {/* Cart */}
         {token && (
-          <div className="relative">
+          <div className={`relative ${!isCheckoutFlow ? "max-[750px]:hidden" : ""}`}>
             <Link to="/cart">
               <img src={assets.basket_icon} alt="Cart" />
             </Link>
@@ -168,11 +171,11 @@ const Navbar = ({ setShowLogin }) => {
 
         {/* Login / Profile */}
         {!token ? (
-          <button className="inline-flex h-10 min-w-[82px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-[tomato] bg-transparent px-[18px] text-base text-[#49557e] transition hover:bg-[#fff4f2] max-[1050px]:min-w-[78px] max-[1050px]:px-[15px] max-[900px]:h-9 max-[900px]:min-w-[72px] max-[900px]:px-3 max-[900px]:text-[15px]" onClick={() => setShowLogin(true)}>
+          <button className={`inline-flex h-10 min-w-[82px] shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-[tomato] bg-transparent px-[18px] text-base text-[#49557e] transition hover:bg-[#fff4f2] max-[1050px]:min-w-[78px] max-[1050px]:px-[15px] max-[900px]:h-9 max-[900px]:min-w-[72px] max-[900px]:px-3 max-[900px]:text-[15px] ${!isCheckoutFlow ? "max-[750px]:hidden" : ""}`} onClick={() => setShowLogin(true)}>
             Sign In
           </button>
         ) : (
-          <div className="relative">
+          <div className={`relative ${!isCheckoutFlow ? "max-[750px]:hidden" : ""}`}>
 
             <button type="button" className="flex cursor-pointer items-center justify-center border-none bg-transparent p-0" onClick={() => setShowProfileMenu((current) => !current)}>
               {profileName ? (
@@ -180,7 +183,9 @@ const Navbar = ({ setShowLogin }) => {
                   {getInitials(profileName)}
                 </span>
               ) : (
-                <img className="block size-8" src={assets.profile_icon} alt="Open profile menu" />
+                <span className="flex size-9 items-center justify-center rounded-full bg-[#fff0eb] text-sm font-semibold text-[tomato]" aria-label="Open profile menu">
+                  U
+                </span>
               )}
             </button>
 
@@ -220,7 +225,57 @@ const Navbar = ({ setShowLogin }) => {
           </div>
         )}
 
+        {!isCheckoutFlow && (
+          <button
+            type="button"
+            className="hidden cursor-pointer border-0 bg-transparent p-1 text-[#49557e] max-[750px]:block"
+            onClick={() => setShowMobileMenu((current) => !current)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={showMobileMenu}
+          >
+            <svg className="size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              {showMobileMenu ? <path d="m6 6 12 12M18 6 6 18" strokeLinecap="round" /> : <><path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" /></>}
+            </svg>
+          </button>
+        )}
+
       </div>
+
+      {showMobileMenu && !isCheckoutFlow && (
+        <nav className="absolute right-0 top-full flex w-[min(calc(100vw-2rem),320px)] flex-col gap-1 rounded-b-xl border border-t-0 border-[#ffe0d9] bg-white p-3 text-base text-[#49557e] shadow-lg min-[751px]:hidden">
+          {token ? (
+            <>
+              <Link to="/cart" className="flex items-center gap-3 rounded px-4 py-3 hover:bg-[#fff0eb]" onClick={closeMobileMenu}>
+                <img className="size-5" src={assets.basket_icon} alt="" />
+                Cart
+              </Link>
+              <Link to="/profile" className="flex items-center gap-3 rounded px-4 py-3 hover:bg-[#fff0eb]" onClick={closeMobileMenu}>
+                <svg className="size-5 text-[tomato]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                  <circle cx="12" cy="8" r="3" />
+                  <path d="M5.5 19c.8-3 3.1-4.5 6.5-4.5s5.7 1.5 6.5 4.5" strokeLinecap="round" />
+                </svg>
+                My Profile
+              </Link>
+              <Link to="/edit-profile" className="flex items-center gap-3 rounded px-4 py-3 hover:bg-[#fff0eb]" onClick={closeMobileMenu}>
+                <svg className="size-5 text-[tomato]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                  <path d="M13.5 5.5 18.5 10.5M4.5 19.5l1-4.2L16.8 4a1.8 1.8 0 0 1 2.5 0l.7.7a1.8 1.8 0 0 1 0 2.5L8.7 18.5l-4.2 1Z" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Edit Profile
+              </Link>
+              <Link to="/myorders" className="flex items-center gap-3 rounded px-4 py-3 hover:bg-[#fff0eb]" onClick={closeMobileMenu}>
+                <img className="size-5" src={assets.bag_icon} alt="" />
+                Orders
+              </Link>
+              <button type="button" className="flex items-center gap-3 rounded px-4 py-3 text-left hover:bg-[#fff0eb]" onClick={() => { closeMobileMenu(); logout(); }}>
+                <img className="size-5" src={assets.logout_icon} alt="" />
+                Logout
+              </button>
+            </>
+          ) : (
+            <button type="button" className="rounded px-4 py-3 text-left hover:bg-[#fff0eb]" onClick={() => { closeMobileMenu(); setShowLogin(true); }}>Sign In</button>
+          )}
+        </nav>
+      )}
 
       {/* ORIGINAL CENTERED SEARCH PANEL */}
       {showSearch && !isCheckoutFlow && (

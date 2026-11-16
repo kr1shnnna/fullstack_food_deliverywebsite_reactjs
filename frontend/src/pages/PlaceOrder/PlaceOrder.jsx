@@ -22,6 +22,8 @@ const PlaceOrder = () => {
     phone:''
   })
   const [profileStatus, setProfileStatus] = useState("");
+  const [orderStatus, setOrderStatus] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -68,6 +70,8 @@ const PlaceOrder = () => {
   const placeOrder=async(event)=>{
 
     event.preventDefault();
+    setOrderStatus("");
+    setIsSubmitting(true);
     let orderItems=[];
     food_list.map((item)=>{
 
@@ -87,14 +91,20 @@ if(cartItems[item._id]>0){
       amount:getTotalCartAmount()+40
     }
 
-    let response= await axios.post(url+'/api/placeorder/placeorder',orderData,{headers:{token}})
-if(response.data.success){
-  const {session_url}=response.data;
-  window.location.replace(session_url);
-}
-else{
-  alert('Error while placing order')
-}
+    try {
+      const response= await axios.post(url+'/api/placeorder/placeorder',orderData,{headers:{token}});
+      if(response.data.success){
+        const {session_url}=response.data;
+        window.location.replace(session_url);
+        return;
+      }
+
+      setOrderStatus(response.data.message || "Unable to start payment.");
+    } catch {
+      setOrderStatus("Unable to start payment. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const navigate=useNavigate();
@@ -113,30 +123,31 @@ else if(getTotalCartAmount()===0){
 
   const deliveryFee = getTotalCartAmount() === 0 ? 0 : 40;
   return (
-    <form onSubmit={placeOrder} className="mx-auto flex w-full max-w-[1100px] items-start justify-between gap-12 py-12 max-[750px]:flex-col max-[750px]:gap-10">
+    <form onSubmit={placeOrder} className="mx-auto flex w-full max-w-[1100px] items-start justify-between gap-12 px-1 py-12 max-[750px]:flex-col max-[750px]:gap-8 max-[750px]:py-8">
       <div className="w-full max-w-[max(30%,500px)]">
-        <p className="mb-8 text-[30px] font-semibold">Delivery Information</p>
+        <p className="mb-7 text-[30px] font-semibold max-[500px]:text-2xl">Delivery Information</p>
         {profileStatus && <p className="mb-5 text-sm text-red-600">{profileStatus}</p>}
-        <div className="flex gap-2.5">
+        {orderStatus && <p className="mb-5 rounded-lg bg-[#fff0ed] px-4 py-3 text-sm text-[#c0392b]">{orderStatus}</p>}
+        <div className="flex gap-2.5 max-[500px]:flex-col">
           <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='firstName' onChange={onChangeHandler} value={data.firstName} type="text" placeholder="First Name" />
           <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='lastName' onChange={onChangeHandler} value={data.lastName} type="text" placeholder="Last Name" />
         </div>
         <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='email' onChange={onChangeHandler} value={data.email} type="email" placeholder="Email address" />
         <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='street' onChange={onChangeHandler} value={data.street} type="text" placeholder="Street" />
 
-        <div className="flex gap-2.5">
+        <div className="flex gap-2.5 max-[500px]:flex-col">
           <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='city' onChange={onChangeHandler} value={data.city} type="text" placeholder="City" />
           <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='state'onChange={onChangeHandler} value={data.state}type="text" placeholder="State" />
         </div>
 
-        <div className="flex gap-2.5">
+        <div className="flex gap-2.5 max-[500px]:flex-col">
           <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='zipcode' onChange={onChangeHandler} value={data.zipcode} type="text" placeholder="Zip code" />
           <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='country' onChange={onChangeHandler} value={data.country} type="text" placeholder="Country" />
         </div>
 
         <input className="mb-[15px] w-full rounded border border-[#c5c5c5] p-2.5 outline-[tomato]" required name='phone' onChange={onChangeHandler} value={data.phone} type="tel" placeholder="Phone" />
       </div>
-      <div className="w-full max-w-[max(40%,500px)] rounded-xl bg-[#fafafa] p-6 sm:p-8">
+      <div className="w-full max-w-[max(40%,500px)] rounded-xl bg-[#fafafa] p-6 sm:p-8 max-[500px]:p-5">
         <div className="flex flex-col gap-5">
           <h2 className="text-2xl font-semibold">Cart Totals</h2>
           <div>
@@ -151,8 +162,8 @@ else if(getTotalCartAmount()===0){
         <b>₹{getTotalCartAmount()+deliveryFee}</b>
       </div>
           </div>
-          <button className="mt-[30px] w-[max(15vw,200px)] cursor-pointer rounded border-none bg-[tomato] py-3 text-white" type='submit'>
-            Proceed to Payment
+          <button disabled={isSubmitting} className="mt-[30px] w-[max(15vw,200px)] cursor-pointer rounded border-none bg-[tomato] py-3 text-white disabled:cursor-not-allowed disabled:opacity-60 max-[500px]:w-full" type='submit'>
+            {isSubmitting ? "Starting payment..." : "Proceed to Payment"}
           </button>
         </div>
       </div>

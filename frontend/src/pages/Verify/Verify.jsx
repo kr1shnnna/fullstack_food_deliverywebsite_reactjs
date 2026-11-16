@@ -9,11 +9,12 @@ const Verify = () => {
     const [searchParams]=useSearchParams();
     const success=searchParams.get('success');
     const orderId=searchParams.get('orderId');
-    const {url, setCartItems}=useContext(StoreContext);
+    const sessionId=searchParams.get('session_id');
+    const {url, token, setCartItems}=useContext(StoreContext);
     const navigate=useNavigate();
 
     const verifyPayment=useCallback(async()=>{
-        const response= await axios.post(url+'/api/placeorder/verify',{success,orderId})
+        const response= await axios.post(url+'/api/placeorder/verify',{success,orderId,sessionId},{headers:{token}})
         if(response.data.success){
             setCartItems({});
             navigate('/myorders')
@@ -21,7 +22,7 @@ const Verify = () => {
         else{
             navigate('/cart')
         }
-    }, [navigate, orderId, setCartItems, success, url])
+    }, [navigate, orderId, sessionId, setCartItems, success, token, url])
 
   useEffect(()=>{
     verifyPayment();

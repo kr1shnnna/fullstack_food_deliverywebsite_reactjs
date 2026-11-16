@@ -14,39 +14,55 @@ const placeOrder = async (req, res) => {
 
     try {
 
-        // Check stock availability before placing order
-        for (const item of req.body.items) {
+        const requestedItems = Array.isArray(req.body.items) ? req.body.items : [];
+        if (requestedItems.length === 0) {
+            return res.json({success:false,message:'Your cart is empty'});
+        }
+
+        const orderItems = [];
+        let subtotal = 0;
+
+        for (const item of requestedItems) {
+            const quantity = Number(item.quantity);
+            if (!Number.isInteger(quantity) || quantity <= 0) {
+                return res.json({success:false,message:'Invalid item quantity'});
+            }
 
             const food = await foodModel.findById(item._id);
 
             if (!food) {
                 return res.json({
                     success: false,
-                    message: `${item.name} is no longer available`
+                    message: 'A food item is no longer available'
                 });
             }
 
-            if (item.quantity > food.stock) {
+            if (quantity > food.stock) {
                 return res.json({
                     success: false,
                     message: `Only ${food.stock} ${food.name} available in stock`
                 });
             }
+
+            const foodItem = food.toObject();
+            foodItem.quantity = quantity;
+            orderItems.push(foodItem);
+            subtotal += food.price * quantity;
         }
 
 
         const newOrder = new orderModel({
 
             userId: req.body.userId,
-            items: req.body.items,
-            amount: req.body.amount,
+            items: orderItems,
+            amount: subtotal + 40,
             address: req.body.address
 
         });
 
         await newOrder.save();
 
-        const line_items = req.body.items.map((item) => ({
+        const line_items = orderItems.map((item) => ({
 
             price_data: {
 
@@ -90,9 +106,13 @@ const placeOrder = async (req, res) => {
 
             mode: 'payment',
 
-            success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
+            success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}&session_id={CHECKOUT_SESSION_ID}`,
 
-            cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`
+            cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
+
+            metadata: {
+                orderId: String(newOrder._id)
+            }
 
         });
 
@@ -119,19 +139,29 @@ const placeOrder = async (req, res) => {
 
 const verifyOrder = async (req, res) => {
 
-    const { orderId, success } = req.body;
+    const { orderId, success, sessionId, userId } = req.body;
 
     try {
+        const order = await orderModel.findById(orderId);
+
+        if (!order || String(order.userId) !== String(userId)) {
+            return res.json({
+                success: false,
+                message: 'Order not found'
+            });
+        }
 
         if (success === 'true') {
+            if (!sessionId) {
+                return res.json({success:false,message:'Payment session is missing'});
+            }
 
-            const order = await orderModel.findById(orderId);
-
-            if (!order) {
-                return res.json({
-                    success: false,
-                    message: 'Order not found'
-                });
+            const session = await stripe.checkout.sessions.retrieve(sessionId);
+            if (
+                session.payment_status !== 'paid' ||
+                session.metadata?.orderId !== String(order._id)
+            ) {
+                return res.json({success:false,message:'Payment was not confirmed'});
             }
 
             // Prevent stock from being reduced twice
@@ -193,8 +223,9 @@ const verifyOrder = async (req, res) => {
         }
 
         else {
-
-            await orderModel.findByIdAndDelete(orderId);
+            if (!order.payment) {
+                await orderModel.findByIdAndDelete(orderId);
+            }
 
             res.json({
                 success: false,
@@ -262,7 +293,19 @@ catch(error){
 const updateStatus= async(req,res)=>{
 
     try{
-        await orderModel.findByIdAndUpdate(req.body.orderId,{status:req.body.status});
+        const allowedStatuses = ['Food Processing', 'Out for delivery', 'Delivered'];
+        if (!allowedStatuses.includes(req.body.status)) {
+            return res.json({success:false,message:'Invalid delivery status'});
+        }
+
+        const order = await orderModel.findOneAndUpdate(
+            {_id:req.body.orderId, payment:true},
+            {status:req.body.status},
+            {new:true}
+        );
+        if (!order) {
+            return res.json({success:false,message:'Paid order not found'});
+        }
         res.json({success:true,message:'Order status updated successfully'})
     }
     catch(error){

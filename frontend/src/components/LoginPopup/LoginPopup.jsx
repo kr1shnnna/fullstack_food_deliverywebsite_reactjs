@@ -96,7 +96,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
         /* SUCCESS SCREEN */
 
-        <div className="place-self-center flex w-[max(23vw,330px)] flex-col items-center rounded-xl bg-white px-[30px] py-[45px] text-center animate-[successPopup_0.4s_ease_forwards]">
+        <div className="place-self-center flex w-[calc(100%-2rem)] max-w-[420px] flex-col items-center rounded-xl bg-white px-6 py-10 text-center animate-[successPopup_0.4s_ease_forwards] sm:px-[30px] sm:py-[45px]">
 
           <div className="mb-[15px] flex h-[70px] w-[70px] items-center justify-center rounded-full bg-[#4caf50] text-[40px] font-bold text-white animate-[checkPop_0.5s_ease_forwards]">
             ✓
@@ -119,7 +119,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
         /* LOGIN FORM */
 
-        <form onSubmit={onLogin} className="place-self-center flex w-[max(23vw,330px)] flex-col gap-[25px] rounded-lg bg-white px-[30px] py-[25px] text-sm text-[#808080] animate-[popupIn_0.35s_ease_forwards]">
+        <form onSubmit={onLogin} className="place-self-center flex w-[calc(100%-2rem)] max-w-[420px] flex-col gap-6 rounded-lg bg-white px-6 py-6 text-sm text-[#808080] animate-[popupIn_0.35s_ease_forwards] sm:gap-[25px] sm:px-[30px] sm:py-[25px]">
 
           <div className="flex items-center justify-between text-black">
 

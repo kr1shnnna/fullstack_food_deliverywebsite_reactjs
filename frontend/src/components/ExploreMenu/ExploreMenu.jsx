@@ -9,7 +9,22 @@ const ExploreMenu = ({category,setCategory  }) => {
             {menu_list.map((item,index)=>{
               return(
                 <div onClick={()=>setCategory(prev=>prev===item.menu_name?'All':item.menu_name)} key={index} className="shrink-0">
-                  <img className={`w-[7.5vw] min-w-20 cursor-pointer rounded-full transition-all duration-200 ${category===item.menu_name?'border-4 border-[tomato] p-0.5':''}`} src={item.menu_image} alt={item.menu_name} />
+                  <div className="relative inline-block">
+                    <img className={`w-[7.5vw] min-w-20 cursor-pointer rounded-full transition-all duration-200 ${category===item.menu_name?'border-4 border-[tomato] p-0.5':''}`} src={item.menu_image} alt={item.menu_name} />
+                    {category === item.menu_name && (
+                      <button
+                        type="button"
+                        aria-label={`Clear ${item.menu_name} filter`}
+                        className="absolute right-1 top-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-[tomato] text-base font-semibold leading-none text-white shadow-sm ring-2 ring-white transition hover:scale-110 hover:bg-[#e64b2e]"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setCategory("All")
+                        }}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
                   <p className="mt-2.5 cursor-pointer text-[max(1.4vw,16px)] text-[#747474]">{item.menu_name}</p>
                 </div>
               )

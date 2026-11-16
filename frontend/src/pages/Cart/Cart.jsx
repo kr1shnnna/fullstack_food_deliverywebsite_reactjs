@@ -3,7 +3,7 @@ import { StoreContext } from '../../Context/StoreContextDefinition'
 import AuthAlert from '../../components/AuthAlert/AuthAlert'
 import { useNavigate } from 'react-router-dom'
 const Cart = () => {
-  const {cartItems,food_list,removeFromCart,getTotalCartAmount,url,token} = useContext(StoreContext);
+  const {cartItems,food_list,addToCart,removeFromCart,getTotalCartAmount,url,token} = useContext(StoreContext);
 
   const navigate=useNavigate();
 
@@ -43,9 +43,9 @@ const Cart = () => {
   const deliveryFee = getTotalCartAmount() === 0 ? 0 : 40;
    
   return (
-    <div className='min-h-[calc(100vh-100px)] pb-20 pt-[100px]'>
+    <div className='min-h-[calc(100vh-100px)] pb-16 pt-12 max-[750px]:pt-8'>
 <div>
-  <div className="grid grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.5fr] items-center text-[max(1vw,12px)] text-gray-500 max-[750px]:text-[11px]">
+  <div className="grid grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.5fr] items-center text-[max(1vw,12px)] text-gray-500 max-[750px]:hidden">
     <p>Items</p>
     <p>Title</p>
     <p>Price</p>
@@ -59,11 +59,15 @@ const Cart = () => {
 if(cartItems[item._id]>0){
   return (
     <div key={item._id}>
- <div className="my-2.5 grid grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.5fr] items-center text-black">
+ <div className="my-2.5 grid grid-cols-[1fr_1.5fr_1fr_1fr_1fr_0.5fr] items-center text-black max-[750px]:grid-cols-[50px_1fr_auto] max-[750px]:gap-2">
    <img className="w-[50px]" src={url+'/images/'+item.image} alt={item.name}/>
       <p>{item.name}</p>
       <p>₹{item.price}</p>
-      <p>{cartItems[item._id]}</p>
+      <div className="flex items-center gap-2">
+        <button type="button" className="flex size-7 items-center justify-center rounded-full bg-[#fff0ed] text-lg text-[tomato]" onClick={()=>removeFromCart(item._id)} aria-label={`Decrease ${item.name} quantity`}>−</button>
+        <p>{cartItems[item._id]}</p>
+        <button type="button" className="flex size-7 items-center justify-center rounded-full bg-[#fff0ed] text-lg text-[tomato]" onClick={()=>addToCart(item._id)} aria-label={`Increase ${item.name} quantity`}>+</button>
+      </div>
       <p>₹{item.price*cartItems[item._id]}</p>
       <p onClick={()=>removeFromCart(item._id)} className='cursor-pointer text-[tomato]'>x</p>
     </div>
@@ -75,7 +79,7 @@ if(cartItems[item._id]>0){
 }
   })}
 </div>
-<div className="mt-20 flex justify-between gap-[max(12vw,20px)] max-[750px]:flex-col-reverse">
+<div className="mt-16 flex justify-between gap-[max(12vw,20px)] max-[750px]:mt-10 max-[750px]:flex-col-reverse max-[750px]:gap-8">
   <div className="flex min-w-0 flex-1 flex-col gap-5">
     <h2>Cart Totals</h2>
     <div>
@@ -94,14 +98,14 @@ if(cartItems[item._id]>0){
         <b>₹{getTotalCartAmount()+deliveryFee}</b>
       </div>
     </div>
-     <button className="w-[max(15vw,200px)] cursor-pointer rounded border-none bg-[tomato] py-3 text-white" onClick={()=>navigate('/order')}>Proceed to Checkout</button>
+     <button className="w-[max(15vw,200px)] cursor-pointer rounded border-none bg-[tomato] py-3 text-white max-[750px]:w-full" onClick={()=>navigate('/order')}>Proceed to Checkout</button>
 </div>
 <div className="min-w-0 flex-1">
   <div>
     <p>If you have a promo code, enter it here </p>
     <div className='mt-2.5 flex items-center justify-between rounded bg-[#eaeaea]'>
-      <input className="border-none bg-transparent pl-2.5 outline-none" type='text' placeholder='promo code' />
-      <button className="w-[max(10vw,150px)] cursor-pointer rounded border-none bg-black px-[5px] py-3 text-white">Apply</button>
+      <input className="min-w-0 flex-1 border-none bg-transparent px-2.5 py-3 outline-none" type='text' placeholder='promo code' />
+      <button className="w-[max(10vw,150px)] cursor-pointer rounded border-none bg-black px-[5px] py-3 text-white max-[750px]:w-[110px]">Apply</button>
 
     </div>
   </div>
